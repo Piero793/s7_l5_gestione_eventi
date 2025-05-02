@@ -17,11 +17,9 @@ public class Prenotazione {
     private Long id;
 
     @ManyToOne
-    @Column( nullable = false)
     private Utente utente;
 
     @ManyToOne
-    @Column(nullable = false)
     private Evento evento;
 
     @Column(nullable = false)
