@@ -18,8 +18,8 @@ public class PrenotazioneController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<PrenotazioneResponse> prenotaPosto(@RequestBody @Valid PrenotazioneRequest prenotazioneDTO) {
-        PrenotazioneResponse prenotazioneCreata = prenotazioneService.prenotaPosto(prenotazioneDTO);
+    public ResponseEntity<PrenotazioneResponse> prenotaPosto(@RequestBody @Valid PrenotazioneRequest prenotazione) {
+        PrenotazioneResponse prenotazioneCreata = prenotazioneService.prenotaPosto(prenotazione);
         return new ResponseEntity<>(prenotazioneCreata , HttpStatus.CREATED);
     }
 

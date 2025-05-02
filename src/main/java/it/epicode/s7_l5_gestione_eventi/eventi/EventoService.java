@@ -18,13 +18,13 @@ public class EventoService {
     @Autowired
     private UtenteRepository utenteRepository;
 
-    public EventoResponse creaEvento(EventoRequest eventoDTO, Long organizzatoreId) {
+    public EventoResponse creaEvento(EventoRequest evento, Long organizzatoreId) {
         Utente organizzatore = utenteRepository.findById(organizzatoreId)
                 .orElseThrow(() -> new RuntimeException("Organizzatore non trovato con ID: " + organizzatoreId));
 
         Evento nuovoEvento = new Evento();
         try {
-            BeanUtils.copyProperties(nuovoEvento, eventoDTO);
+            BeanUtils.copyProperties(nuovoEvento, evento);
         } catch (Exception e) {
             throw new RuntimeException("Errore durante la copia delle proprietà dell'evento", e);
         }
@@ -56,7 +56,7 @@ public class EventoService {
         return convertToResponseDTO(evento);
     }
 
-    public EventoResponse modificaEvento(Long id, EventoRequest eventoDTO, Long organizzatoreId) {
+    public EventoResponse modificaEvento(Long id, EventoRequest evento, Long organizzatoreId) {
         Evento eventoEsistente = eventoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evento non trovato con ID: " + id));
 
@@ -68,7 +68,7 @@ public class EventoService {
         }
 
         try {
-            BeanUtils.copyProperties(eventoEsistente, eventoDTO);
+            BeanUtils.copyProperties(eventoEsistente, evento);
         } catch (Exception e) {
             throw new RuntimeException("Errore durante la copia delle proprietà dell'evento", e);
         }

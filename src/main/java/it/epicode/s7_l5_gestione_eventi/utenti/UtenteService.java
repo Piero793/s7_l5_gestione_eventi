@@ -15,25 +15,26 @@ public class UtenteService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UtenteResponse registraUtente(RegistrazioneUtenteDTO registrazioneDTO) {
-        if (utenteRepository.existsByUsername(registrazioneDTO.getUsername())) {
+    public UtenteResponse registraUtente(RegistrazioneUtente registrazione) {
+        if (utenteRepository.existsByUsername(registrazione.getUsername())) {
             throw new RuntimeException("Username già in uso");
         }
 
         Utente nuovoUtente = new Utente();
         try {
-            BeanUtils.copyProperties(nuovoUtente, registrazioneDTO);
+            BeanUtils.copyProperties(nuovoUtente, registrazione);
         } catch (Exception e) {
             throw new RuntimeException("Errore durante l'impostazione di una proprietà dell'utente", e);
         }
 
+        // criptiamo la password
         nuovoUtente.setPassword(passwordEncoder.encode(nuovoUtente.getPassword()));
 
         // Convertiamo la stringa del ruolo in enum
         try {
-            nuovoUtente.setRuolo(RuoloUtente.valueOf(registrazioneDTO.getRuolo().toUpperCase()));
+            nuovoUtente.setRuolo(RuoloUtente.valueOf(registrazione.getRuolo().toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Ruolo non valido: " + registrazioneDTO.getRuolo());
+            throw new IllegalArgumentException("Ruolo non valido: " + registrazione.getRuolo());
         }
 
         Utente utenteSalvato = utenteRepository.save(nuovoUtente);
