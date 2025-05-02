@@ -23,9 +23,9 @@ public class Utente {
     @Enumerated(EnumType.STRING)
     private RuoloUtente ruolo;
 
-    @OneToMany(mappedBy = "organizzatore")
+   /* @OneToMany(mappedBy = "organizzatore")
     private List<Evento> eventiCreati;
 
     @OneToMany(mappedBy = "utente")
-    private List<Prenotazione> prenotazioni;
+    private List<Prenotazione> prenotazioni;*/
 }
