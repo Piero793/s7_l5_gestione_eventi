@@ -1,10 +1,10 @@
 package it.epicode.s7_l5_gestione_eventi.utenti;
 
+import it.epicode.s7_l5_gestione_eventi.security.Exceptions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 
 @Service
 public class UtenteService {
@@ -17,7 +17,8 @@ public class UtenteService {
 
     public UtenteResponse registraUtente(RegistrazioneUtente registrazione) {
         if (utenteRepository.existsByUsername(registrazione.getUsername())) {
-            throw new RuntimeException("Username già in uso");
+            // Lanciamo la nostra eccezione personalizzata
+            throw new Exceptions.UtenteGiaEsistenteException("Username già in uso");
         }
 
         Utente nuovoUtente = new Utente();

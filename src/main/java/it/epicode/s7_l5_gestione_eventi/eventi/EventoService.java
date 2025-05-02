@@ -1,9 +1,14 @@
 package it.epicode.s7_l5_gestione_eventi.eventi;
 
+import it.epicode.s7_l5_gestione_eventi.security.Exceptions;
 import it.epicode.s7_l5_gestione_eventi.utenti.Utente;
 import it.epicode.s7_l5_gestione_eventi.utenti.UtenteRepository;
+import it.epicode.s7_l5_gestione_eventi.utenti.RuoloUtente;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,13 +23,27 @@ public class EventoService {
     @Autowired
     private UtenteRepository utenteRepository;
 
-    public EventoResponse creaEvento(EventoRequest evento, Long organizzatoreId) {
+    public EventoResponse creaEvento(EventoRequest eventoDTO, Long organizzatoreId) {
+        // Otteniamo l'utente autenticato
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            Utente utenteAutenticato = utenteRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Utente autenticato non trovato"));
+
+            // Verifichiamo se l'utente autenticato ha il ruolo di ORGANIZZATORE_EVENTI
+            if (utenteAutenticato.getRuolo() != RuoloUtente.ORGANIZZATORE_EVENTI) {
+                throw new Exceptions.AutorizzazioneNegataException("Solo gli organizzatori di eventi possono creare eventi.");
+            }
+        } else {
+            throw new Exceptions.AutorizzazioneNegataException("Utente non autenticato o informazioni sull'utente non disponibili.");
+        }
+
         Utente organizzatore = utenteRepository.findById(organizzatoreId)
                 .orElseThrow(() -> new RuntimeException("Organizzatore non trovato con ID: " + organizzatoreId));
 
         Evento nuovoEvento = new Evento();
         try {
-            BeanUtils.copyProperties(nuovoEvento, evento);
+            BeanUtils.copyProperties(nuovoEvento, eventoDTO);
         } catch (Exception e) {
             throw new RuntimeException("Errore durante la copia delle proprietà dell'evento", e);
         }
@@ -56,36 +75,66 @@ public class EventoService {
         return convertToResponseDTO(evento);
     }
 
-    public EventoResponse modificaEvento(Long id, EventoRequest evento, Long organizzatoreId) {
+    public EventoResponse modificaEvento(Long id, EventoRequest eventoDTO, Long organizzatoreId) {
         Evento eventoEsistente = eventoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evento non trovato con ID: " + id));
 
-        Utente organizzatore = utenteRepository.findById(organizzatoreId)
-                .orElseThrow(() -> new RuntimeException("Organizzatore non trovato con ID: " + organizzatoreId));
+        // Otteniamo l'utente autenticato
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            Utente utenteAutenticato = utenteRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Utente autenticato non trovato"));
 
-        if (!eventoEsistente.getOrganizzatore().getId().equals(organizzatoreId)) {
-            throw new RuntimeException("Non sei autorizzato a modificare questo evento");
-        }
+            // Verifichiamo se l'utente autenticato ha il ruolo di ORGANIZZATORE_EVENTI
+            if (utenteAutenticato.getRuolo() != RuoloUtente.ORGANIZZATORE_EVENTI) {
+                throw new Exceptions.AutorizzazioneNegataException("Solo gli organizzatori di eventi possono modificare gli eventi.");
+            }
 
-        try {
-            BeanUtils.copyProperties(eventoEsistente, evento);
-        } catch (Exception e) {
-            throw new RuntimeException("Errore durante la copia delle proprietà dell'evento", e);
+            Utente organizzatore = utenteRepository.findById(organizzatoreId)
+                    .orElseThrow(() -> new RuntimeException("Organizzatore non trovato con ID: " + organizzatoreId));
+
+            if (!eventoEsistente.getOrganizzatore().getId().equals(organizzatoreId)) {
+                throw new Exceptions.AutorizzazioneNegataException("Non sei autorizzato a modificare questo evento.");
+            }
+
+            try {
+                BeanUtils.copyProperties(eventoEsistente, eventoDTO);
+            } catch (Exception e) {
+                throw new RuntimeException("Errore durante la copia delle proprietà dell'evento", e);
+            }
+            eventoEsistente.setOrganizzatore(organizzatore);
+            Evento eventoAggiornato = eventoRepository.save(eventoEsistente);
+            return convertToResponseDTO(eventoAggiornato);
+
+        } else {
+            throw new Exceptions.AutorizzazioneNegataException("Utente non autenticato o informazioni sull'utente non disponibili.");
         }
-        eventoEsistente.setOrganizzatore(organizzatore);
-        Evento eventoAggiornato = eventoRepository.save(eventoEsistente);
-        return convertToResponseDTO(eventoAggiornato);
     }
 
     public void eliminaEvento(Long id, Long organizzatoreId) {
         Evento eventoEsistente = eventoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evento non trovato con ID: " + id));
 
-        if (!eventoEsistente.getOrganizzatore().getId().equals(organizzatoreId)) {
-            throw new RuntimeException("Non sei autorizzato a eliminare questo evento");
-        }
+        // Otteniamo l'utente autenticato
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            Utente utenteAutenticato = utenteRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Utente autenticato non trovato"));
 
-        eventoRepository.deleteById(id);
+            // Verifichiamo se l'utente autenticato ha il ruolo di ORGANIZZATORE_EVENTI
+            if (utenteAutenticato.getRuolo() != RuoloUtente.ORGANIZZATORE_EVENTI) {
+                throw new Exceptions.AutorizzazioneNegataException("Solo gli organizzatori di eventi possono eliminare gli eventi.");
+            }
+
+            if (!eventoEsistente.getOrganizzatore().getId().equals(organizzatoreId)) {
+                throw new Exceptions.AutorizzazioneNegataException("Non sei autorizzato a eliminare questo evento.");
+            }
+
+            eventoRepository.deleteById(id);
+
+        } else {
+            throw new Exceptions.AutorizzazioneNegataException("Utente non autenticato o informazioni sull'utente non disponibili.");
+        }
     }
 
     private EventoResponse convertToResponseDTO(Evento evento) {
