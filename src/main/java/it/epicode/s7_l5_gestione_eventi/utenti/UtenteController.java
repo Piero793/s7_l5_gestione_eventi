@@ -1,7 +1,6 @@
 package it.epicode.s7_l5_gestione_eventi.utenti;
 
 
-import it.epicode.s7_l5_gestione_eventi.RegistrazioneUtenteDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

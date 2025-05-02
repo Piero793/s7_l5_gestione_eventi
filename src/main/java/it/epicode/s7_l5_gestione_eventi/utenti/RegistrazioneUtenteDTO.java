@@ -1,4 +1,4 @@
-package it.epicode.s7_l5_gestione_eventi;
+package it.epicode.s7_l5_gestione_eventi.utenti;
 
 
 import jakarta.validation.constraints.NotBlank;

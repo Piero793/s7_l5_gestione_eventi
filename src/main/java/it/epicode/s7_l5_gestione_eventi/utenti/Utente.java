@@ -1,5 +1,6 @@
 package it.epicode.s7_l5_gestione_eventi.utenti;
 
+import it.epicode.s7_l5_gestione_eventi.eventi.Evento;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
@@ -23,9 +24,9 @@ public class Utente {
     @Enumerated(EnumType.STRING)
     private RuoloUtente ruolo;
 
-   /* @OneToMany(mappedBy = "organizzatore")
+    @OneToMany(mappedBy = "organizzatore")
     private List<Evento> eventiCreati;
 
-    @OneToMany(mappedBy = "utente")
+    /*@OneToMany(mappedBy = "utente")
     private List<Prenotazione> prenotazioni;*/
 }
