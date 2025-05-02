@@ -31,7 +31,6 @@ public class Evento {
     private int postiDisponibili;
 
     @ManyToOne
-    @Column(nullable = false)
     private Utente organizzatore;
 
 }
