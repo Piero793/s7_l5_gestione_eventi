@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class EventoService {
 
     private static final Logger logger = LoggerFactory.getLogger(EventoService.class);
