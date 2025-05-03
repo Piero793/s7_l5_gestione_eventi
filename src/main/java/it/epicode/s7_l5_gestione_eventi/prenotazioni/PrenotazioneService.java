@@ -5,6 +5,7 @@ import it.epicode.s7_l5_gestione_eventi.eventi.Evento;
 import it.epicode.s7_l5_gestione_eventi.eventi.EventoRepository;
 import it.epicode.s7_l5_gestione_eventi.utenti.Utente;
 import it.epicode.s7_l5_gestione_eventi.utenti.UtenteRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,25 +35,25 @@ public class PrenotazioneService {
         Utente utente = utenteRepository.findById(prenotazioneDTO.getUtenteId())
                 .orElseThrow(() -> {
                     ;
-                    return new RuntimeException("Utente non trovato con ID: " + prenotazioneDTO.getUtenteId());
+                    return new EntityNotFoundException("Utente non trovato con ID: " + prenotazioneDTO.getUtenteId());
                 });
         logger.info("Utente trovato: {}", utente.getUsername());
 
         Evento evento = eventoRepository.findById(prenotazioneDTO.getEventoId())
                 .orElseThrow(() -> {
                     logger.error("Evento non trovato con ID: {}", prenotazioneDTO.getEventoId());
-                    return new RuntimeException("Evento non trovato con ID: " + prenotazioneDTO.getEventoId());
+                    return new EntityNotFoundException("Evento non trovato con ID: " + prenotazioneDTO.getEventoId());
                 });
         logger.info("Evento trovato: {}", evento.getTitolo());
 
         if (prenotazioneRepository.existsByUtenteIdAndEventoId(utente.getId(), evento.getId())) {
             logger.warn("L'utente {} ha già prenotato un posto per l'evento {}", utente.getUsername(), evento.getTitolo());
-            throw new RuntimeException("Hai già prenotato un posto per questo evento");
+            throw new EntityNotFoundException("Hai già prenotato un posto per questo evento");
         }
 
         if (evento.getPostiDisponibili() <= 0) {
             logger.warn("Non ci sono più posti disponibili per l'evento {}", evento.getTitolo());
-            throw new RuntimeException("Non ci sono più posti disponibili per questo evento");
+            throw new EntityNotFoundException("Non ci sono più posti disponibili per questo evento");
         }
 
         Prenotazione nuovaPrenotazione = new Prenotazione();
@@ -72,7 +73,7 @@ public class PrenotazioneService {
         risposta.setId(prenotazioneSalvata.getId());
         risposta.setUtenteId(prenotazioneSalvata.getUtente().getId());
         risposta.setEventoId(prenotazioneSalvata.getEvento().getId());
-        risposta.setDataPrenotazione(prenotazioneSalvata.getDataPrenotazione()); // Ora la data non sarà più null
+        risposta.setDataPrenotazione(prenotazioneSalvata.getDataPrenotazione());
         logger.info("Risposta di prenotazione creata con ID: {}, Utente ID: {}, Evento ID: {}, Data Prenotazione: {}",
                 risposta.getId(),
                 risposta.getUtenteId(),
@@ -86,7 +87,7 @@ public class PrenotazioneService {
         Utente utente = utenteRepository.findById(utenteId)
                 .orElseThrow(() -> {
                     logger.error("Utente non trovato con ID: {}", utenteId);
-                    return new RuntimeException("Utente non trovato con ID: " + utenteId);
+                    return new EntityNotFoundException("Utente non trovato con ID: " + utenteId);
                 });
 
         List<Prenotazione> prenotazioni = prenotazioneRepository.findByUtenteId(utenteId);
@@ -102,7 +103,7 @@ public class PrenotazioneService {
         Prenotazione prenotazione = prenotazioneRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Prenotazione non trovata con ID: {}", id);
-                    return new RuntimeException("Prenotazione non trovata con ID: " + id);
+                    return new EntityNotFoundException("Prenotazione non trovata con ID: " + id);
                 });
         logger.info("Prenotazione trovata con Utente ID: {} ed Evento ID: {}", prenotazione.getUtente().getId(), prenotazione.getEvento().getId());
 
