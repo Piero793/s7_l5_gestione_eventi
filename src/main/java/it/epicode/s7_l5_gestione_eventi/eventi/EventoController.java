@@ -13,13 +13,16 @@ import java.util.List;
 @RequestMapping("/api/eventi")
 public class EventoController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EventoController.class);
+
     @Autowired
     private EventoService eventoService;
 
-    @PostMapping("/organizzatori/{organizzatoreId}")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<EventoResponse> creaEvento(@PathVariable Long organizzatoreId, @RequestBody @Valid EventoRequest eventoDTO) {
-        EventoResponse eventoCreato = eventoService.creaEvento(eventoDTO, organizzatoreId);
+    public ResponseEntity<EventoResponse> creaEvento(@RequestBody @Valid EventoRequest eventoDTO) {
+        logger.info("Corpo della richiesta JSON ricevuto: {}", eventoDTO);
+        EventoResponse eventoCreato = eventoService.creaEvento(eventoDTO);
         return new ResponseEntity<>(eventoCreato, HttpStatus.CREATED);
     }
 
@@ -35,15 +38,15 @@ public class EventoController {
         return new ResponseEntity<>(evento, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/organizzatori/{organizzatoreId}")
-    public ResponseEntity<EventoResponse> modificaEvento(@PathVariable Long id, @PathVariable Long organizzatoreId, @RequestBody @Valid EventoRequest eventoDTO) {
-        EventoResponse eventoAggiornato = eventoService.modificaEvento(id, eventoDTO, organizzatoreId);
+    @PutMapping("/{id}")
+    public ResponseEntity<EventoResponse> modificaEvento(@PathVariable Long id, @RequestBody @Valid EventoRequest eventoDTO) {
+        EventoResponse eventoAggiornato = eventoService.modificaEvento(id, eventoDTO);
         return new ResponseEntity<>(eventoAggiornato, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}/organizzatori/{organizzatoreId}")
-    public ResponseEntity<Void> eliminaEvento(@PathVariable Long id, @PathVariable Long organizzatoreId) {
-        eventoService.eliminaEvento(id, organizzatoreId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminaEvento(@PathVariable Long id) {
+        eventoService.eliminaEvento(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

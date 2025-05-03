@@ -16,7 +16,7 @@ public class UtenteService {
 
     public UtenteResponse registraUtente(RegistrazioneUtente registrazione) {
         if (utenteRepository.existsByUsername(registrazione.getUsername())) {
-            // Lanciamo la nostra eccezione personalizzata
+            // eccezione personalizzata
             throw new Exceptions.UtenteGiaEsistenteException("Username già in uso");
         }
 
@@ -24,10 +24,10 @@ public class UtenteService {
         nuovoUtente.setUsername(registrazione.getUsername());
         nuovoUtente.setPassword(registrazione.getPassword());
 
-        // criptiamo la password
+        // cripto la password
         nuovoUtente.setPassword(passwordEncoder.encode(nuovoUtente.getPassword()));
 
-        // Convertiamo la stringa del ruolo in enum
+        // Converto la stringa del ruolo in enum
         try {
             nuovoUtente.setRuolo(RuoloUtente.valueOf(registrazione.getRuolo().toUpperCase()));
         } catch (IllegalArgumentException e) {

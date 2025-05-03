@@ -5,7 +5,8 @@ import it.epicode.s7_l5_gestione_eventi.eventi.Evento;
 import it.epicode.s7_l5_gestione_eventi.utenti.Utente;
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "prenotazioni")
@@ -22,10 +23,5 @@ public class Prenotazione {
     @ManyToOne
     private Evento evento;
 
-    @Column(nullable = false)
-    private LocalDateTime dataPrenotazione;
-
-    public Prenotazione() {
-        this.dataPrenotazione = LocalDateTime.now();
-    }
+    private LocalDate dataPrenotazione;
 }

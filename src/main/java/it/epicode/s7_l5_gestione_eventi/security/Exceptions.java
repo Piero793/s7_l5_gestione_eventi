@@ -23,4 +23,10 @@ public class Exceptions extends RuntimeException {
             super(message);
         }
     }
+
+    public static class UtenteNonTrovatoException extends Exceptions {
+        public UtenteNonTrovatoException(String message) {
+            super(message);
+        }
+    }
 }

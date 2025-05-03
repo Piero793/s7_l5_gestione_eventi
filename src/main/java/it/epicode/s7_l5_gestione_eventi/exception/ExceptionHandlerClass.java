@@ -41,6 +41,11 @@ public class ExceptionHandlerClass extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN); // 403 Forbidden
     }
 
+    @ExceptionHandler(Exceptions.UtenteNonTrovatoException.class)
+    public ResponseEntity<String> handleUtenteNonTrovatoException(Exceptions.UtenteNonTrovatoException ex) {
+        return new ResponseEntity<>("Utente non trovato | " + ex.getMessage(), HttpStatus.NOT_FOUND); // 404 Not Found
+    }
+
     // validazione da service
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, String>> handleConstraintViolationException(ConstraintViolationException ex) {

@@ -5,7 +5,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 
 @Data
 public class EventoRequest {
@@ -17,7 +18,7 @@ public class EventoRequest {
     private String descrizione;
 
     @NotNull(message = "La data è obbligatoria")
-    private LocalDateTime data;
+    private LocalDate data;
 
     @NotBlank(message = "Il luogo è obbligatorio")
     private String luogo;

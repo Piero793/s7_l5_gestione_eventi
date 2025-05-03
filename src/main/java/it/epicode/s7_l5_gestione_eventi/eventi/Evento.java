@@ -4,7 +4,8 @@ package it.epicode.s7_l5_gestione_eventi.eventi;
 import it.epicode.s7_l5_gestione_eventi.utenti.Utente;
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "eventi")
@@ -15,22 +16,16 @@ public class Evento {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(nullable = false)
     private String titolo;
 
-    @Column(nullable = false)
     private String descrizione;
 
-    @Column(nullable = false)
-    private LocalDateTime data;
+    private LocalDate data;
 
-    @Column(nullable = false)
     private String luogo;
 
-    @Column(nullable = false)
     private int postiDisponibili;
 
     @ManyToOne
     private Utente organizzatore;
-
 }
