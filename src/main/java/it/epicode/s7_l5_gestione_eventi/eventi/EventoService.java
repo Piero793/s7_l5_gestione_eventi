@@ -50,6 +50,7 @@ public class EventoService {
             nuovoEvento.setDescrizione(eventoDTO.getDescrizione());
             nuovoEvento.setData(eventoDTO.getData());
             nuovoEvento.setLuogo(eventoDTO.getLuogo());
+            nuovoEvento.setPrezzo(eventoDTO.getPrezzo());
             nuovoEvento.setPostiDisponibili(eventoDTO.getPostiDisponibili());
             nuovoEvento.setOrganizzatore(organizzatoreAutenticato);
             logger.info("Nuovo evento creato con titolo: {}", nuovoEvento.getTitolo());
@@ -118,6 +119,7 @@ public class EventoService {
             eventoEsistente.setDescrizione(eventoDTO.getDescrizione());
             eventoEsistente.setData(eventoDTO.getData());
             eventoEsistente.setLuogo(eventoDTO.getLuogo());
+            eventoEsistente.setPrezzo(eventoDTO.getPrezzo());
             eventoEsistente.setPostiDisponibili(eventoDTO.getPostiDisponibili());
             logger.info("Evento con ID {} modificato.", id);
 
@@ -177,6 +179,7 @@ public class EventoService {
         response.setDescrizione(evento.getDescrizione());
         response.setData(evento.getData());
         response.setLuogo(evento.getLuogo());
+        response.setPrezzo(evento.getPrezzo()); // <--- AGGIUNTA QUESTA RIGA
         response.setPostiDisponibili(evento.getPostiDisponibili());
         response.setOrganizzatoreId(evento.getOrganizzatore().getId());
         logger.debug("Convertito evento con ID: {} in EventoResponse con titolo: {}", evento.getId(), evento.getTitolo());

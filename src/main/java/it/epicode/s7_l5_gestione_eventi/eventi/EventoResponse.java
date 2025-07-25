@@ -12,6 +12,7 @@ public class EventoResponse {
     private String descrizione;
     private LocalDate data;
     private String luogo;
+    private double prezzo;
     private int postiDisponibili;
     private Long organizzatoreId;
 }
