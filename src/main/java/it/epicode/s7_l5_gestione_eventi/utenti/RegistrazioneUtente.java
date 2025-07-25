@@ -15,6 +15,4 @@ public class RegistrazioneUtente {
     @Size(min = 6, message = "La password deve contenere almeno 6 caratteri")
     private String password;
 
-    @NotBlank(message = "Il ruolo è obbligatorio")
-    private String ruolo;
 }

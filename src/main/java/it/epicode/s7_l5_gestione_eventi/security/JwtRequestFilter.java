@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays; // Import aggiunto
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,9 +32,31 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    private static final List<String> PUBLIC_ENDPOINTS = Arrays.asList(
+            "/api/auth/login",
+            "/api/auth/registrazione",
+            "/v3/api-docs",
+            "/swagger-ui"
+
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        String requestUri = request.getRequestURI();
+        logger.info("Processing request for URI: {}", requestUri);
+
+
+        boolean isPublicEndpoint = PUBLIC_ENDPOINTS.stream().anyMatch(requestUri::startsWith);
+
+        if (isPublicEndpoint) {
+            logger.info("URI '{}' is a public endpoint. Bypassing JWT filter.", requestUri);
+            filterChain.doFilter(request, response); // Passa la richiesta al prossimo filtro nella catena
+            return; // Termina l'esecuzione di questo filtro per la richiesta corrente
+        }
+
+        // --- Inizio della logica di validazione JWT per le richieste non pubbliche ---
 
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
@@ -48,7 +71,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 logger.info("JWT estratto (senza 'Bearer '): {}", jwt);
             } else {
                 logger.warn("L'header Authorization non inizia con 'Bearer '");
-                // continuiamo con l'assunzione che l'intero header sia il JWT.
                 jwt = authHeader;
                 logger.info("Assumendo che l'intero header sia il JWT: {}", jwt);
             }
@@ -58,7 +80,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 logger.info("Username estratto dal JWT: {}", username);
             } catch (io.jsonwebtoken.ExpiredJwtException e) {
                 logger.error("Token JWT scaduto: {}", e.getMessage());
-                SecurityContextHolder.clearContext();
+                SecurityContextHolder.clearContext(); // Pulisce il contesto di sicurezza
             } catch (io.jsonwebtoken.MalformedJwtException e) {
                 logger.error("Token JWT malformato: {}", e.getMessage());
                 SecurityContextHolder.clearContext();
@@ -73,18 +95,27 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             logger.info("Nessuna autenticazione presente nel SecurityContextHolder per l'utente: {}", username);
+
+
             if (jwtUtil.isTokenValid(jwt)) {
                 logger.info("Il token JWT è valido");
+
+                // Estrai i ruoli direttamente dal token JWT
                 List<String> roles = jwtUtil.extractRoles(jwt);
                 logger.info("Ruoli estratti dal token: {}", roles);
+
+                // Converte i ruoli in SimpleGrantedAuthority
                 List<SimpleGrantedAuthority> authorities = roles.stream()
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
                 logger.info("Autorità create: {}", authorities);
 
+                // Crea l'oggetto di autenticazione
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        username, null, authorities);
+                        username, null, authorities); // Username e autorità dal token
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                // Imposta l'autenticazione nel SecurityContextHolder
                 SecurityContextHolder.getContext().setAuthentication(authToken);
                 logger.info("Autenticazione impostata nel SecurityContextHolder per l'utente: {}", username);
             } else {
@@ -92,6 +123,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
 
+        // Continua la catena di filtri
         filterChain.doFilter(request, response);
         logger.info("JwtRequestFilter completato");
     }
